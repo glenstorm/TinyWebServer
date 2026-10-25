@@ -111,7 +111,7 @@ public:
     static int m_epollfd;
     static int m_user_count;
     MYSQL *mysql;
-    int m_state;  //读为0, 写为1
+    int m_state;  //0 means read, 1 means write
 
 private:
     int m_sockfd;
@@ -134,8 +134,8 @@ private:
     struct stat m_file_stat;
     struct iovec m_iv[2];
     int m_iv_count;
-    int cgi;        //是否启用的POST
-    char *m_string; //存储请求头数据
+    int cgi;        //Set when the method is POST
+    char *m_string; //Stores the request body
     int bytes_to_send;
     int bytes_have_send;
     char *doc_root;

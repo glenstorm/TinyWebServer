@@ -19,16 +19,16 @@ Log::~Log()
         fclose(m_fp);
     }
 }
-//异步需要设置阻塞队列的长度，同步不需要设置
+//Async logging needs a blocking-queue length; sync logging does not
 bool Log::init(const char *file_name, int close_log, int log_buf_size, int split_lines, int max_queue_size)
 {
-    //如果设置了max_queue_size,则设置为异步
+    //A positive max_queue_size selects async mode
     if (max_queue_size >= 1)
     {
         m_is_async = true;
         m_log_queue = new block_queue<string>(max_queue_size);
         pthread_t tid;
-        //flush_log_thread为回调函数,这里表示创建线程异步写日志
+        //flush_log_thread is the callback; this creates the async log-writer thread
         pthread_create(&tid, NULL, flush_log_thread, NULL);
     }
     
@@ -94,7 +94,7 @@ void Log::write_log(int level, const char *format, ...)
         strcpy(s, "[info]:");
         break;
     }
-    //写入一个log，对m_count++, m_split_lines最大行数
+    //Write one log line and increment m_count; m_split_lines is the max lines per file
     m_mutex.lock();
     m_count++;
 
@@ -129,7 +129,7 @@ void Log::write_log(int level, const char *format, ...)
     string log_str;
     m_mutex.lock();
 
-    //写入的具体时间内容格式
+    //Format the timestamp and message
     int n = snprintf(m_buf, 48, "%d-%02d-%02d %02d:%02d:%02d.%06ld %s ",
                      my_tm.tm_year + 1900, my_tm.tm_mon + 1, my_tm.tm_mday,
                      my_tm.tm_hour, my_tm.tm_min, my_tm.tm_sec, now.tv_usec, s);
@@ -158,7 +158,7 @@ void Log::write_log(int level, const char *format, ...)
 void Log::flush(void)
 {
     m_mutex.lock();
-    //强制刷新写入流缓冲区
+    //Flush the stdio buffer to the file
     fflush(m_fp);
     m_mutex.unlock();
 }

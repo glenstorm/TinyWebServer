@@ -150,7 +150,7 @@ void Utils::init(int timeslot)
     m_TIMESLOT = timeslot;
 }
 
-//对文件描述符设置非阻塞
+//Set a file descriptor to non-blocking
 int Utils::setnonblocking(int fd)
 {
     int old_option = fcntl(fd, F_GETFL);
@@ -159,7 +159,7 @@ int Utils::setnonblocking(int fd)
     return old_option;
 }
 
-//将内核事件表注册读事件，ET模式，选择开启EPOLLONESHOT
+//Register a read event on the kernel event table; ET mode, optionally with EPOLLONESHOT
 void Utils::addfd(int epollfd, int fd, bool one_shot, int TRIGMode)
 {
     epoll_event event;
@@ -176,17 +176,17 @@ void Utils::addfd(int epollfd, int fd, bool one_shot, int TRIGMode)
     setnonblocking(fd);
 }
 
-//信号处理函数
+//Signal handler
 void Utils::sig_handler(int sig)
 {
-    //为保证函数的可重入性，保留原来的errno
+    //Save errno so the handler stays reentrant
     int save_errno = errno;
     int msg = sig;
     send(u_pipefd[1], (char *)&msg, 1, 0);
     errno = save_errno;
 }
 
-//设置信号函数
+//Install a signal handler
 void Utils::addsig(int sig, void(handler)(int), bool restart)
 {
     struct sigaction sa;
@@ -198,7 +198,7 @@ void Utils::addsig(int sig, void(handler)(int), bool restart)
     assert(sigaction(sig, &sa, NULL) != -1);
 }
 
-//定时处理任务，重新定时以不断触发SIGALRM信号
+//Handle expired timers, then re-arm SIGALRM
 void Utils::timer_handler()
 {
     m_timer_lst.tick();

@@ -1,6 +1,6 @@
 /*************************************************************
-*循环数组实现的阻塞队列，m_back = (m_back + 1) % m_max_size;  
-*线程安全，每个操作前都要先加互斥锁，操作完后，再解锁
+*Blocking queue backed by a circular array; m_back = (m_back + 1) % m_max_size.  
+*Thread-safe: lock the mutex before each operation and unlock afterwards.
 **************************************************************/
 
 #ifndef BLOCK_QUEUE_H
@@ -48,7 +48,7 @@ public:
 
         m_mutex.unlock();
     }
-    //判断队列是否满了
+    //True when the queue is full
     bool full() 
     {
         m_mutex.lock();
@@ -61,7 +61,7 @@ public:
         m_mutex.unlock();
         return false;
     }
-    //判断队列是否为空
+    //True when the queue is empty
     bool empty() 
     {
         m_mutex.lock();
@@ -73,7 +73,7 @@ public:
         m_mutex.unlock();
         return false;
     }
-    //返回队首元素
+    //Return the front element
     bool front(T &value) 
     {
         m_mutex.lock();
@@ -86,7 +86,7 @@ public:
         m_mutex.unlock();
         return true;
     }
-    //返回队尾元素
+    //Return the back element
     bool back(T &value) 
     {
         m_mutex.lock();
@@ -121,9 +121,9 @@ public:
         m_mutex.unlock();
         return tmp;
     }
-    //往队列添加元素，需要将所有使用队列的线程先唤醒
-    //当有元素push进队列,相当于生产者生产了一个元素
-    //若当前没有线程等待条件变量,则唤醒无意义
+    //Push an item and wake every thread waiting on the queue
+    //A push is the producer producing one item
+    //A wakeup does nothing when no thread is waiting on the condition
     bool push(const T &item)
     {
 
@@ -145,7 +145,7 @@ public:
         m_mutex.unlock();
         return true;
     }
-    //pop时,如果当前队列没有元素,将会等待条件变量
+    //pop waits on the condition variable when the queue is empty
     bool pop(T &item)
     {
 
@@ -167,7 +167,7 @@ public:
         return true;
     }
 
-    //增加了超时处理
+    //pop with a timeout
     bool pop(T &item, int ms_timeout)
     {
         struct timespec t = {0, 0};
