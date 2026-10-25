@@ -1,13 +1,13 @@
 
-校验 & 数据库连接池
+Authentication and database connection pool
 ===============
-数据库连接池
-> * 单例模式，保证唯一
-> * list实现连接池
-> * 连接池为静态大小
-> * 互斥锁实现线程安全
+Database connection pool
+> * Singleton, so there is only one pool
+> * Pool stored in a list
+> * Fixed pool size
+> * Mutex for thread safety
 
-校验  
-> * HTTP请求采用POST方式
-> * 登录用户名和密码校验
-> * 用户注册及多线程注册安全
+Authentication
+> * HTTP POST
+> * Check the login username and password
+> * User registration, safe under concurrent threads

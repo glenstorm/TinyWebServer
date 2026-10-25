@@ -1,7 +1,7 @@
 
-定时器处理非活动连接
+Timers for inactive connections
 ===============
-由于非活跃连接占用了连接资源，严重影响服务器的性能，通过实现一个服务器定时器，处理这种非活跃连接，释放连接资源。利用alarm函数周期性地触发SIGALRM信号,该信号的信号处理函数利用管道通知主循环执行定时器链表上的定时任务.
-> * 统一事件源
-> * 基于升序链表的定时器
-> * 处理非活动连接
+Inactive connections hold resources and hurt server performance. A server timer closes those connections and frees the resources. `alarm` periodically raises SIGALRM, and the signal handler uses a pipe to tell the main loop to run the tasks on the timer list.
+> * Unified event source
+> * Timer based on an ascending linked list
+> * Close inactive connections
