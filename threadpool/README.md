@@ -1,10 +1,10 @@
 
-半同步/半反应堆线程池
+Half-sync/half-reactor thread pool
 ===============
-使用一个工作队列完全解除了主线程和工作线程的耦合关系：主线程往工作队列中插入任务，工作线程通过竞争来取得任务并执行它。
-> * 同步I/O模拟proactor模式
-> * 半同步/半反应堆
-> * 线程池
+A work queue fully decouples the main thread from the worker threads: the main thread inserts tasks, and workers compete to take a task and run it.
+> * Proactor simulated with synchronous I/O
+> * Half-sync / half-reactor
+> * Thread pool
 
 
 

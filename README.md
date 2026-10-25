@@ -1,162 +1,161 @@
 
-
 TinyWebServer
 ===============
-Linux下C++轻量级Web服务器，助力初学者快速实践网络编程，搭建属于自己的服务器.
+A lightweight C++ web server for Linux. It is meant to help beginners practice network programming and build a server of their own.
 
-* 使用 **线程池 + 非阻塞socket + epoll(ET和LT均实现) + 事件处理(Reactor和模拟Proactor均实现)** 的并发模型
-* 使用**状态机**解析HTTP请求报文，支持解析**GET和POST**请求
-* 访问服务器数据库实现web端用户**注册、登录**功能，可以请求服务器**图片和视频文件**
-* 实现**同步/异步日志系统**，记录服务器运行状态
-* 经Webbench压力测试可以实现**上万的并发连接**数据交换
+* Concurrency model: **thread pool + non-blocking sockets + epoll (both ET and LT) + event handling (both Reactor and a simulated Proactor)**
+* A **state machine** parses HTTP requests, including **GET and POST**
+* A server database backs web **registration and login**, and the server can serve **image and video files**
+* A **synchronous / asynchronous logging** system records how the server is running
+* Under WebBench it can exchange data across **tens of thousands of concurrent connections**
 
 
-写在前面
+Preface
 ----
-* 本项目开发维护过程中，很多童鞋曾发红包支持，我都一一谢绝。我现在不会，将来也不会将本项目包装成任何课程售卖，更不会开通任何支持通道。
-* 目前网络上有人或对本项目，或对游双大佬的项目包装成课程售卖。请各位童鞋擦亮眼，辨识各大学习/求职网站的C++服务器项目，不要盲目付费。
-* 有面试官大佬通过项目信息在公司内找到我，发现很多童鞋简历上都用了这个项目。但，在面试过程中发现`很多童鞋通过本项目入门了，但是对于一些东西还是属于知其然不知其所以然的状态，需要加强下基础知识的学习`，推荐认真阅读下
-    * 《unix环境高级编程》
-    * 《unix网络编程》
-* 感谢各位大佬，各位朋友，各位童鞋的认可和支持。如果本项目能带你入门，将是我莫大的荣幸。
+* While this project was being developed and maintained, many people offered donations. I declined every one. I am not packaging this project as a paid course, and I will not open any donation channel.
+* Some people online sell courses built by wrapping this project, or You Shuang's project. Please look carefully at the C++ server projects on study and job-hunting sites, and do not pay blindly.
+* Interviewers have found me inside their companies from this project's details, and many resumes list it. In interviews, though, `many candidates got started with this project but still know what the pieces do without knowing why. The fundamentals need more work`. These books are worth reading carefully:
+    * *Advanced Programming in the UNIX Environment*
+    * *UNIX Network Programming*
+* Thank you to everyone who has recognized and supported this project. If it helps you get started, that is an honor.
 
 
-目录
+Contents
 -----
 
-| [概述](#概述) | [框架](#框架) | [Demo演示](#Demo演示) | [压力测试](#压力测试) |[更新日志](#更新日志) |[源码下载](#源码下载) | [快速运行](#快速运行) | [个性化运行](#个性化运行) | [庖丁解牛](#庖丁解牛) | [CPP11实现](#CPP11实现) |[致谢](#致谢) |
+| [Overview](#overview) | [Architecture](#architecture) | [Demo](#demo) | [Stress test](#stress-test) |[Changelog](#changelog) |[Download](#download) | [Quick start](#quick-start) | [Custom run](#custom-run) | [Walkthrough](#walkthrough) | [C++11 implementation](#c11-implementation) |[Acknowledgements](#acknowledgements) |
 |:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|
 
 
-概述
+Overview
 ----------
 
 > * C/C++
-> * B/S模型
-> * [线程同步机制包装类](https://github.com/qinguoyi/TinyWebServer/tree/master/lock)
-> * [http连接请求处理类](https://github.com/qinguoyi/TinyWebServer/tree/master/http)
-> * [半同步/半反应堆线程池](https://github.com/qinguoyi/TinyWebServer/tree/master/threadpool)
-> * [定时器处理非活动连接](https://github.com/qinguoyi/TinyWebServer/tree/master/timer)
-> * [同步/异步日志系统 ](https://github.com/qinguoyi/TinyWebServer/tree/master/log)  
-> * [数据库连接池](https://github.com/qinguoyi/TinyWebServer/tree/master/CGImysql) 
-> * [同步线程注册和登录校验](https://github.com/qinguoyi/TinyWebServer/tree/master/CGImysql) 
-> * [简易服务器压力测试](https://github.com/qinguoyi/TinyWebServer/tree/master/test_presure)
+> * Browser/server model
+> * [Thread synchronization wrappers](https://github.com/qinguoyi/TinyWebServer/tree/master/lock)
+> * [HTTP connection handler](https://github.com/qinguoyi/TinyWebServer/tree/master/http)
+> * [Half-sync/half-reactor thread pool](https://github.com/qinguoyi/TinyWebServer/tree/master/threadpool)
+> * [Timers for inactive connections](https://github.com/qinguoyi/TinyWebServer/tree/master/timer)
+> * [Synchronous / asynchronous logging](https://github.com/qinguoyi/TinyWebServer/tree/master/log)  
+> * [Database connection pool](https://github.com/qinguoyi/TinyWebServer/tree/master/CGImysql) 
+> * [Synchronous registration and login checks](https://github.com/qinguoyi/TinyWebServer/tree/master/CGImysql) 
+> * [Simple server stress test](https://github.com/qinguoyi/TinyWebServer/tree/master/test_presure)
 
 
-框架
+Architecture
 -------------
 <div align=center><img src="http://ww1.sinaimg.cn/large/005TJ2c7ly1ge0j1atq5hj30g60lm0w4.jpg" height="765"/> </div>
 
-Demo演示
+Demo
 ----------
-> * 注册演示
+> * Registration
 
 <div align=center><img src="http://ww1.sinaimg.cn/large/005TJ2c7ly1ge0iz0dkleg30m80bxjyj.gif" height="429"/> </div>
 
-> * 登录演示
+> * Login
 
 <div align=center><img src="https://github.com/qinguoyi/TinyWebServer/blob/master/root/login.gif" height="429"/> </div>
 
-> * 请求图片文件演示(6M)
+> * Requesting an image file (6M)
 
 <div align=center><img src="http://ww1.sinaimg.cn/large/005TJ2c7ly1ge0juxrnlfg30go07x4qr.gif" height="429"/> </div>
 
-> * 请求视频文件演示(39M)
+> * Requesting a video file (39M)
 
 <div align=center><img src="http://ww1.sinaimg.cn/large/005TJ2c7ly1ge0jtxie8ng30go07xb2b.gif" height="429"/> </div>
 
 
-压力测试
+Stress test
 -------------
-在关闭日志后，使用Webbench对服务器进行压力测试，对listenfd和connfd分别采用ET和LT模式，均可实现上万的并发连接，下面列出的是两者组合后的测试结果. 
+With logging turned off, WebBench stress-tested the server. listenfd and connfd were each tried in ET and LT, and every combination reached tens of thousands of concurrent connections. The combined results are below.
 
-> * Proactor，LT + LT，93251 QPS
+> * Proactor, LT + LT, 93251 QPS
 
 <div align=center><img src="http://ww1.sinaimg.cn/large/005TJ2c7ly1gfjqu2hptkj30gz07474n.jpg" height="201"/> </div>
 
-> * Proactor，LT + ET，97459 QPS
+> * Proactor, LT + ET, 97459 QPS
 
 <div align=center><img src="http://ww1.sinaimg.cn/large/005TJ2c7ly1gfjr1xppdgj30h206zdg6.jpg" height="201"/> </div>
 
-> * Proactor，ET + LT，80498 QPS
+> * Proactor, ET + LT, 80498 QPS
 
 <div align=center><img src="http://ww1.sinaimg.cn/large/005TJ2c7ly1gfjr24vmjtj30gz0720t3.jpg" height="201"/> </div>
 
-> * Proactor，ET + ET，92167 QPS
+> * Proactor, ET + ET, 92167 QPS
 
 <div align=center><img src="http://ww1.sinaimg.cn/large/005TJ2c7ly1gfjrflrebdj30gz06z0t3.jpg" height="201"/> </div>
 
-> * Reactor，LT + ET，69175 QPS
+> * Reactor, LT + ET, 69175 QPS
 
 <div align=center><img src="http://ww1.sinaimg.cn/large/005TJ2c7ly1gfjr1humcbj30h207474n.jpg" height="201"/> </div>
 
-> * 并发连接总数：10500
-> * 访问服务器时间：5s
-> * 所有访问均成功
+> * Total concurrent connections: 10500
+> * Time accessing the server: 5s
+> * Every request succeeded
 
-**注意：** 使用本项目的webbench进行压测时，若报错显示webbench命令找不到，将可执行文件webbench删除后，重新编译即可。
+**Note:** If this project's webbench reports that the `webbench` command cannot be found, delete the `webbench` executable and compile it again.
 
-更新日志
+Changelog
 -------
-- [x] 解决请求服务器上大文件的Bug
-- [x] 增加请求视频文件的页面
-- [x] 解决数据库同步校验内存泄漏
-- [x] 实现非阻塞模式下的ET和LT触发，并完成压力测试
-- [x] 完善`lock.h`中的封装类，统一使用该同步机制
-- [x] 改进代码结构，更新局部变量懒汉单例模式
-- [x] 优化数据库连接池信号量与代码结构
-- [x] 使用RAII机制优化数据库连接的获取与释放
-- [x] 优化代码结构，封装工具类以减少全局变量
-- [x] 编译一次即可，命令行进行个性化测试更加友好
-- [x] main函数封装重构
-- [x] 新增命令行日志开关，关闭日志后更新压力测试结果
-- [x] 改进编译方式，只配置一次SQL信息即可
-- [x] 新增Reactor模式，并完成压力测试
+- [x] Fixed the bug when requesting large files from the server
+- [x] Added a page for requesting video files
+- [x] Fixed a memory leak in the synchronous database check
+- [x] Implemented non-blocking ET and LT triggering, and finished the stress tests
+- [x] Completed the wrapper classes in `lock.h` and used that synchronization mechanism throughout
+- [x] Improved the code structure and switched to a function-local Meyers singleton
+- [x] Tuned the database connection pool semaphore and code structure
+- [x] Used RAII to acquire and release database connections
+- [x] Wrapped utility classes to cut down on global variables
+- [x] One build is enough; command-line options make custom tests easier
+- [x] Refactored and wrapped `main`
+- [x] Added a command-line switch to turn logging off, and updated the stress-test results with logging off
+- [x] Simplified the build so SQL settings are configured only once
+- [x] Added Reactor mode and finished its stress test
 
-源码下载
+Download
 -------
-目前有两个版本，版本间的代码结构有较大改动，文档和代码运行方法也不一致。重构版本更简洁，原始版本(raw_version)更大保留游双代码的原汁原味，从原始版本更容易入手.
+There are two versions. Their code structure differs a lot, and so do the docs and how you run them. The refactored version is cleaner. The original version (`raw_version`) stays closer to You Shuang's code and is an easier place to start.
 
-如果遇到github代码下载失败，或访问太慢，可以从以下链接下载，与Github最新提交同步.
+If a GitHub download fails or is too slow, use the links below. They stay in sync with the latest GitHub commit.
 
-* 重构版本下载地址 : [BaiduYun](https://pan.baidu.com/s/1PozKji8Oop-1BYcfixZR0g)
-    *  提取码 : vsqq
-* 原始版本(raw_version)下载地址 : [BaiduYun](https://pan.baidu.com/s/1asMNDW-zog92DZY1Oa4kaQ)
-    * 提取码 : 9wye
-    * 原始版本运行请参考[原始文档](https://github.com/qinguoyi/TinyWebServer/tree/raw_version)
+* Refactored version: [BaiduYun](https://pan.baidu.com/s/1PozKji8Oop-1BYcfixZR0g)
+    *  Extraction code: vsqq
+* Original version (`raw_version`): [BaiduYun](https://pan.baidu.com/s/1asMNDW-zog92DZY1Oa4kaQ)
+    * Extraction code: 9wye
+    * To run the original version, see the [original docs](https://github.com/qinguoyi/TinyWebServer/tree/raw_version)
 
-快速运行
+Quick start
 ------------
-* 服务器测试环境
-	* Ubuntu版本16.04
-	* MySQL版本5.7.29
-* 浏览器测试环境
-	* Windows、Linux均可
+* Server test environment
+	* Ubuntu 16.04
+	* MySQL 5.7.29
+* Browser test environment
+	* Windows or Linux
 	* Chrome
 	* FireFox
-	* 其他浏览器暂无测试
+	* Other browsers have not been tested
 
-* 测试前确认已安装MySQL数据库
+* Confirm that MySQL is installed before testing
 
     ```C++
-    // 建立yourdb库
+    // Create the yourdb database
     create database yourdb;
 
-    // 创建user表
+    // Create the user table
     USE yourdb;
     CREATE TABLE user(
         username char(50) NULL,
         passwd char(50) NULL
     )ENGINE=InnoDB;
 
-    // 添加数据
+    // Insert a row
     INSERT INTO user(username, passwd) VALUES('name', 'passwd');
     ```
 
-* 修改main.cpp中的数据库初始化信息
+* Edit the database settings in main.cpp
 
     ```C++
-    //数据库登录名,密码,库名
+    // Database login name, password, and database name
     string user = "root";
     string passwd = "root";
     string databasename = "yourdb";
@@ -168,97 +167,97 @@ Demo演示
     sh ./build.sh
     ```
 
-* 启动server
+* Start the server
 
     ```C++
     ./server
     ```
 
-* 浏览器端
+* In the browser
 
     ```C++
     ip:9006
     ```
 
-个性化运行
+Custom run
 ------
 
 ```C++
 ./server [-p port] [-l LOGWrite] [-m TRIGMode] [-o OPT_LINGER] [-s sql_num] [-t thread_num] [-c close_log] [-a actor_model]
 ```
 
-温馨提示:以上参数不是非必须，不用全部使用，根据个人情况搭配选用即可.
+These flags are optional. You do not need to set all of them; combine the ones you need.
 
-* -p，自定义端口号
-	* 默认9006
-* -l，选择日志写入方式，默认同步写入
-	* 0，同步写入
-	* 1，异步写入
-* -m，listenfd和connfd的模式组合，默认使用LT + LT
-	* 0，表示使用LT + LT
-	* 1，表示使用LT + ET
-    * 2，表示使用ET + LT
-    * 3，表示使用ET + ET
-* -o，优雅关闭连接，默认不使用
-	* 0，不使用
-	* 1，使用
-* -s，数据库连接数量
-	* 默认为8
-* -t，线程数量
-	* 默认为8
-* -c，关闭日志，默认打开
-	* 0，打开日志
-	* 1，关闭日志
-* -a，选择反应堆模型，默认Proactor
-	* 0，Proactor模型
-	* 1，Reactor模型
+* -p, port
+	* Default 9006
+* -l, how logs are written; default is synchronous
+	* 0, synchronous
+	* 1, asynchronous
+* -m, listenfd and connfd trigger combination; default is LT + LT
+	* 0, LT + LT
+	* 1, LT + ET
+    * 2, ET + LT
+    * 3, ET + ET
+* -o, graceful close; off by default
+	* 0, off
+	* 1, on
+* -s, number of database connections
+	* Default 8
+* -t, number of threads
+	* Default 8
+* -c, turn logging off; logging is on by default
+	* 0, logging on
+	* 1, logging off
+* -a, concurrency model; default is Proactor
+	* 0, Proactor
+	* 1, Reactor
 
-测试示例命令与含义
+Example command and what it means
 
 ```C++
 ./server -p 9007 -l 1 -m 0 -o 1 -s 10 -t 10 -c 1 -a 1
 ```
 
-- [x] 端口9007
-- [x] 异步写入日志
-- [x] 使用LT + LT组合
-- [x] 使用优雅关闭连接
-- [x] 数据库连接池内有10条连接
-- [x] 线程池内有10条线程
-- [x] 关闭日志
-- [x] Reactor反应堆模型
+- [x] Port 9007
+- [x] Asynchronous logging
+- [x] LT + LT
+- [x] Graceful close
+- [x] 10 connections in the database pool
+- [x] 10 threads in the thread pool
+- [x] Logging off
+- [x] Reactor model
 
-庖丁解牛
+Walkthrough
 ------------
-近期版本迭代较快，以下内容多以旧版本(raw_version)代码为蓝本进行详解.
+Recent versions have moved quickly. Most of the write-ups below follow the older `raw_version` code.
 
-* [小白视角：一文读懂社长的TinyWebServer](https://huixxi.github.io/2020/06/02/%E5%B0%8F%E7%99%BD%E8%A7%86%E8%A7%92%EF%BC%9A%E4%B8%80%E6%96%87%E8%AF%BB%E6%87%82%E7%A4%BE%E9%95%BF%E7%9A%84TinyWebServer/#more)
-* [最新版Web服务器项目详解 - 01 线程同步机制封装类](https://mp.weixin.qq.com/s?__biz=MzAxNzU2MzcwMw==&mid=2649274278&idx=3&sn=5840ff698e3f963c7855d702e842ec47&chksm=83ffbefeb48837e86fed9754986bca6db364a6fe2e2923549a378e8e5dec6e3cf732cdb198e2&scene=0&xtrack=1#rd)
-* [最新版Web服务器项目详解 - 02 半同步半反应堆线程池（上）](https://mp.weixin.qq.com/s?__biz=MzAxNzU2MzcwMw==&mid=2649274278&idx=4&sn=caa323faf0c51d882453c0e0c6a62282&chksm=83ffbefeb48837e841a6dbff292217475d9075e91cbe14042ad6e55b87437dcd01e6d9219e7d&scene=0&xtrack=1#rd)
-* [最新版Web服务器项目详解 - 03 半同步半反应堆线程池（下）](https://mp.weixin.qq.com/s/PB8vMwi8sB4Jw3WzAKpWOQ)
-* [最新版Web服务器项目详解 - 04 http连接处理（上）](https://mp.weixin.qq.com/s/BfnNl-3jc_x5WPrWEJGdzQ)
-* [最新版Web服务器项目详解 - 05 http连接处理（中）](https://mp.weixin.qq.com/s/wAQHU-QZiRt1VACMZZjNlw)
-* [最新版Web服务器项目详解 - 06 http连接处理（下）](https://mp.weixin.qq.com/s/451xNaSFHxcxfKlPBV3OCg)
-* [最新版Web服务器项目详解 - 07 定时器处理非活动连接（上）](https://mp.weixin.qq.com/s/mmXLqh_NywhBXJvI45hchA)
-* [最新版Web服务器项目详解 - 08 定时器处理非活动连接（下）](https://mp.weixin.qq.com/s/fb_OUnlV1SGuOUdrGrzVgg)
-* [最新版Web服务器项目详解 - 09 日志系统（上）](https://mp.weixin.qq.com/s/IWAlPzVDkR2ZRI5iirEfCg)
-* [最新版Web服务器项目详解 - 10 日志系统（下）](https://mp.weixin.qq.com/s/f-ujwFyCe1LZa3EB561ehA)
-* [最新版Web服务器项目详解 - 11 数据库连接池](https://mp.weixin.qq.com/s?__biz=MzAxNzU2MzcwMw==&mid=2649274326&idx=1&sn=5af78e2bf6552c46ae9ab2aa22faf839&chksm=83ffbe8eb4883798c3abb82ddd124c8100a39ef41ab8d04abe42d344067d5e1ac1b0cac9d9a3&token=1450918099&lang=zh_CN#rd)
-* [最新版Web服务器项目详解 - 12 注册登录](https://mp.weixin.qq.com/s?__biz=MzAxNzU2MzcwMw==&mid=2649274431&idx=4&sn=7595a70f06a79cb7abaebcd939e0cbee&chksm=83ffb167b4883871ce110aeb23e04acf835ef41016517247263a2c3ab6f8e615607858127ea6&token=1686112912&lang=zh_CN#rd)
-* [最新版Web服务器项目详解 - 13 踩坑与面试题](https://mp.weixin.qq.com/s?__biz=MzAxNzU2MzcwMw==&mid=2649274431&idx=1&sn=2dd28c92f5d9704a57c001a3d2630b69&chksm=83ffb167b48838715810b27b8f8b9a576023ee5c08a8e5d91df5baf396732de51268d1bf2a4e&token=1686112912&lang=zh_CN#rd)
-* 已更新完毕
+* [A beginner's guide to TinyWebServer](https://huixxi.github.io/2020/06/02/%E5%B0%8F%E7%99%BD%E8%A7%86%E8%A7%92%EF%BC%9A%E4%B8%80%E6%96%87%E8%AF%BB%E6%87%82%E7%A4%BE%E9%95%BF%E7%9A%84TinyWebServer/#more)
+* [Web server project explained - 01 Thread synchronization wrappers](https://mp.weixin.qq.com/s?__biz=MzAxNzU2MzcwMw==&mid=2649274278&idx=3&sn=5840ff698e3f963c7855d702e842ec47&chksm=83ffbefeb48837e86fed9754986bca6db364a6fe2e2923549a378e8e5dec6e3cf732cdb198e2&scene=0&xtrack=1#rd)
+* [Web server project explained - 02 Half-sync/half-reactor thread pool (part 1)](https://mp.weixin.qq.com/s?__biz=MzAxNzU2MzcwMw==&mid=2649274278&idx=4&sn=caa323faf0c51d882453c0e0c6a62282&chksm=83ffbefeb48837e841a6dbff292217475d9075e91cbe14042ad6e55b87437dcd01e6d9219e7d&scene=0&xtrack=1#rd)
+* [Web server project explained - 03 Half-sync/half-reactor thread pool (part 2)](https://mp.weixin.qq.com/s/PB8vMwi8sB4Jw3WzAKpWOQ)
+* [Web server project explained - 04 HTTP connection handling (part 1)](https://mp.weixin.qq.com/s/BfnNl-3jc_x5WPrWEJGdzQ)
+* [Web server project explained - 05 HTTP connection handling (part 2)](https://mp.weixin.qq.com/s/wAQHU-QZiRt1VACMZZjNlw)
+* [Web server project explained - 06 HTTP connection handling (part 3)](https://mp.weixin.qq.com/s/451xNaSFHxcxfKlPBV3OCg)
+* [Web server project explained - 07 Timers for inactive connections (part 1)](https://mp.weixin.qq.com/s/mmXLqh_NywhBXJvI45hchA)
+* [Web server project explained - 08 Timers for inactive connections (part 2)](https://mp.weixin.qq.com/s/fb_OUnlV1SGuOUdrGrzVgg)
+* [Web server project explained - 09 Logging (part 1)](https://mp.weixin.qq.com/s/IWAlPzVDkR2ZRI5iirEfCg)
+* [Web server project explained - 10 Logging (part 2)](https://mp.weixin.qq.com/s/f-ujwFyCe1LZa3EB561ehA)
+* [Web server project explained - 11 Database connection pool](https://mp.weixin.qq.com/s?__biz=MzAxNzU2MzcwMw==&mid=2649274326&idx=1&sn=5af78e2bf6552c46ae9ab2aa22faf839&chksm=83ffbe8eb4883798c3abb82ddd124c8100a39ef41ab8d04abe42d344067d5e1ac1b0cac9d9a3&token=1450918099&lang=zh_CN#rd)
+* [Web server project explained - 12 Registration and login](https://mp.weixin.qq.com/s?__biz=MzAxNzU2MzcwMw==&mid=2649274431&idx=4&sn=7595a70f06a79cb7abaebcd939e0cbee&chksm=83ffb167b4883871ce110aeb23e04acf835ef41016517247263a2c3ab6f8e615607858127ea6&token=1686112912&lang=zh_CN#rd)
+* [Web server project explained - 13 Pitfalls and interview questions](https://mp.weixin.qq.com/s?__biz=MzAxNzU2MzcwMw==&mid=2649274431&idx=1&sn=2dd28c92f5d9704a57c001a3d2630b69&chksm=83ffb167b48838715810b27b8f8b9a576023ee5c08a8e5d91df5baf396732de51268d1bf2a4e&token=1686112912&lang=zh_CN#rd)
+* Series complete
 
 Star History
 ---------
 [![Star History Chart](https://api.star-history.com/svg?repos=qinguoyi/TinyWebServer&type=Date)](https://star-history.com/#qinguoyi/TinyWebServer&Date)
 
-CPP11实现
+C++11 implementation
 ------------
-更简洁，更优雅的CPP11实现：[Webserver](https://github.com/markparticle/WebServer)
+A cleaner C++11 version: [Webserver](https://github.com/markparticle/WebServer)
 
 
-致谢
+Acknowledgements
 ------------
-Linux高性能服务器编程，游双著.
+*Linux High-Performance Server Programming*, by You Shuang.
 
-感谢以下朋友的PR和帮助: [@RownH](https://github.com/RownH)，[@mapleFU](https://github.com/mapleFU)，[@ZWiley](https://github.com/ZWiley)，[@zjuHong](https://github.com/zjuHong)，[@mamil](https://github.com/mamil)，[@byfate](https://github.com/byfate)，[@MaJun827](https://github.com/MaJun827)，[@BBLiu-coder](https://github.com/BBLiu-coder)，[@smoky96](https://github.com/smoky96)，[@yfBong](https://github.com/yfBong)，[@liuwuyao](https://github.com/liuwuyao)，[@Huixxi](https://github.com/Huixxi)，[@markparticle](https://github.com/markparticle)，[@blogg9ggg](https://github.com/Blogg9ggg).
+Thanks to these friends for pull requests and help: [@RownH](https://github.com/RownH), [@mapleFU](https://github.com/mapleFU), [@ZWiley](https://github.com/ZWiley), [@zjuHong](https://github.com/zjuHong), [@mamil](https://github.com/mamil), [@byfate](https://github.com/byfate), [@MaJun827](https://github.com/MaJun827), [@BBLiu-coder](https://github.com/BBLiu-coder), [@smoky96](https://github.com/smoky96), [@yfBong](https://github.com/yfBong), [@liuwuyao](https://github.com/liuwuyao), [@Huixxi](https://github.com/Huixxi), [@markparticle](https://github.com/markparticle), [@blogg9ggg](https://github.com/Blogg9ggg).

@@ -1,10 +1,11 @@
 
-线程同步机制包装类
+Thread synchronization wrappers
 ===============
-多线程同步，确保任一时刻只能有一个线程能进入关键代码段.
-> * 信号量
-> * 互斥锁
-> * 条件变量
+Multithreaded synchronization, so only one thread can enter a critical section at a time.
+> * Semaphore
+> * Mutex
+> * Condition variable
+
 
 
 

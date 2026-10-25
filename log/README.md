@@ -1,9 +1,9 @@
 
-同步/异步日志系统
+Synchronous / asynchronous logging
 ===============
-同步/异步日志系统主要涉及了两个模块，一个是日志模块，一个是阻塞队列模块,其中加入阻塞队列模块主要是解决异步写入日志做准备.
-> * 自定义阻塞队列
-> * 单例模式创建日志
-> * 同步日志
-> * 异步日志
-> * 实现按天、超行分类
+Logging is split into a log module and a blocking-queue module. The queue is there so log lines can be written asynchronously.
+> * Custom blocking queue
+> * Singleton log
+> * Synchronous logging
+> * Asynchronous logging
+> * Rotate by day and by line count
