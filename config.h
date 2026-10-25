@@ -13,34 +13,34 @@ public:
 
     void parse_arg(int argc, char*argv[]);
 
-    //端口号
+    //Port number
     int PORT;
 
-    //日志写入方式
+    //Log write mode
     int LOGWrite;
 
-    //触发组合模式
+    //Trigger combination mode
     int TRIGMode;
 
-    //listenfd触发模式
+    //listenfd trigger mode
     int LISTENTrigmode;
 
-    //connfd触发模式
+    //connfd trigger mode
     int CONNTrigmode;
 
-    //优雅关闭链接
+    //Graceful close
     int OPT_LINGER;
 
-    //数据库连接池数量
+    //Database connection pool size
     int sql_num;
 
-    //线程池内的线程数量
+    //Number of threads in the pool
     int thread_num;
 
-    //是否关闭日志
+    //Whether logging is closed
     int close_log;
 
-    //并发模型选择
+    //Concurrency model
     int actor_model;
 };
 

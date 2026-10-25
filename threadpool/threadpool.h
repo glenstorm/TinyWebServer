@@ -12,26 +12,26 @@ template <typename T>
 class threadpool
 {
 public:
-    /*thread_number是线程池中线程的数量，max_requests是请求队列中最多允许的、等待处理的请求的数量*/
+    /*thread_number is the number of threads in the pool; max_requests is the maximum number of pending requests the queue may hold*/
     threadpool(int actor_model, connection_pool *connPool, int thread_number = 8, int max_request = 10000);
     ~threadpool();
     bool append(T *request, int state);
     bool append_p(T *request);
 
 private:
-    /*工作线程运行的函数，它不断从工作队列中取出任务并执行之*/
+    /*Worker routine: keep taking tasks from the work queue and executing them*/
     static void *worker(void *arg);
     void run();
 
 private:
-    int m_thread_number;        //线程池中的线程数
-    int m_max_requests;         //请求队列中允许的最大请求数
-    pthread_t *m_threads;       //描述线程池的数组，其大小为m_thread_number
-    std::list<T *> m_workqueue; //请求队列
-    locker m_queuelocker;       //保护请求队列的互斥锁
-    sem m_queuestat;            //是否有任务需要处理
-    connection_pool *m_connPool;  //数据库
-    int m_actor_model;          //模型切换
+    int m_thread_number;        //Number of threads in the pool
+    int m_max_requests;         //Maximum number of requests allowed in the queue
+    pthread_t *m_threads;       //Array of thread ids, length m_thread_number
+    std::list<T *> m_workqueue; //Request queue
+    locker m_queuelocker;       //Mutex that protects the request queue
+    sem m_queuestat;            //Signaled when a task is waiting to be processed
+    connection_pool *m_connPool;  //Database
+    int m_actor_model;          //Actor model switch
 };
 template <typename T>
 threadpool<T>::threadpool( int actor_model, connection_pool *connPool, int thread_number, int max_requests) : m_actor_model(actor_model),m_thread_number(thread_number), m_max_requests(max_requests), m_threads(NULL),m_connPool(connPool)

@@ -73,19 +73,19 @@ public:
 
     void init(int timeslot);
 
-    //对文件描述符设置非阻塞
+    //Set a file descriptor to non-blocking
     int setnonblocking(int fd);
 
-    //将内核事件表注册读事件，ET模式，选择开启EPOLLONESHOT
+    //Register a read event on the kernel event table; ET mode, optionally with EPOLLONESHOT
     void addfd(int epollfd, int fd, bool one_shot, int TRIGMode);
 
-    //信号处理函数
+    //Signal handler
     static void sig_handler(int sig);
 
-    //设置信号函数
+    //Install a signal handler
     void addsig(int sig, void(handler)(int), bool restart = true);
 
-    //定时处理任务，重新定时以不断触发SIGALRM信号
+    //Handle expired timers, then re-arm SIGALRM
     void timer_handler();
 
     void show_error(int connfd, const char *info);
