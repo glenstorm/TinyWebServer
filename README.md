@@ -161,16 +161,18 @@ Quick start
     string databasename = "yourdb";
     ```
 
-* build
+* Build with GCC inside WSL
 
     ```C++
     sh ./build.sh
     ```
 
-* Start the server
+    Or in Visual Studio Code: reopen this folder in WSL, install the CMake Tools extension, choose the **WSL GCC Debug** preset, and build the `server` target.
+
+* Start the server from the project root
 
     ```C++
-    ./server
+    ./build/server
     ```
 
 * In the browser
@@ -183,7 +185,7 @@ Custom run
 ------
 
 ```C++
-./server [-p port] [-l LOGWrite] [-m TRIGMode] [-o OPT_LINGER] [-s sql_num] [-t thread_num] [-c close_log] [-a actor_model]
+./build/server [-p port] [-l LOGWrite] [-m TRIGMode] [-o OPT_LINGER] [-s sql_num] [-t thread_num] [-c close_log] [-a actor_model]
 ```
 
 These flags are optional. You do not need to set all of them; combine the ones you need.
@@ -215,7 +217,7 @@ These flags are optional. You do not need to set all of them; combine the ones y
 Example command and what it means
 
 ```C++
-./server -p 9007 -l 1 -m 0 -o 1 -s 10 -t 10 -c 1 -a 1
+./build/server -p 9007 -l 1 -m 0 -o 1 -s 10 -t 10 -c 1 -a 1
 ```
 
 - [x] Port 9007

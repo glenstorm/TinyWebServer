@@ -1,0 +1,7 @@
+build/
+build-release/
+compile_commands.json
+CMakeUserPresets.json
+server
+*.o
+.vs/
